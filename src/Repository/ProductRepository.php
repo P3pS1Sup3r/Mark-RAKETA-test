@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Raketa\BackendTestTask\Repository;
 
 use Doctrine\DBAL\Connection;
+use Exception;
 use Raketa\BackendTestTask\Repository\Entity\Product;
 
 class ProductRepository
@@ -18,8 +19,12 @@ class ProductRepository
 
     public function getByUuid(string $uuid): Product
     {
+        // ВНИМАНИЕ!!! возможная SQL инекция в переменной $uuid
         $row = $this->connection->fetchOne(
-            "SELECT * FROM products WHERE uuid = " . $uuid,
+            "SELECT * FROM products WHERE uuid = :uuid",
+            [
+                'uuid' => $uuid
+            ],
         );
 
         if (empty($row)) {
@@ -33,8 +38,12 @@ class ProductRepository
     {
         return array_map(
             static fn (array $row): Product => $this->make($row),
+            // ВНИМАНИЕ!!! возможная SQL инекция в переменной $category
             $this->connection->fetchAllAssociative(
-                "SELECT id FROM products WHERE is_active = 1 AND category = " . $category,
+                "SELECT id FROM products WHERE is_active = 1 AND category = :category",
+                [
+                    'category' => $category
+                ],
             )
         );
     }

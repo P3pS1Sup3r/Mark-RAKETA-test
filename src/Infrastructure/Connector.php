@@ -10,11 +10,8 @@ use RedisException;
 
 class Connector
 {
-    private Redis $redis;
-
-    public function __construct($redis)
+    public function __construct(private Redis $redis)
     {
-        return $this->redis = $redis;
     }
 
     /**
@@ -25,6 +22,7 @@ class Connector
         try {
             return unserialize($this->redis->get($key));
         } catch (RedisException $e) {
+            // Сюда бы логгер
             throw new ConnectorException('Connector error', $e->getCode(), $e);
         }
     }
@@ -37,6 +35,7 @@ class Connector
         try {
             $this->redis->setex($key, 24 * 60 * 60, serialize($value));
         } catch (RedisException $e) {
+            // Сюда бы логгер
             throw new ConnectorException('Connector error', $e->getCode(), $e);
         }
     }

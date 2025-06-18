@@ -4,6 +4,7 @@ namespace Raketa\BackendTestTask\Controller;
 
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use Raketa\BackendTestTask\Domain\CartItem;
 use Raketa\BackendTestTask\Repository\CartManager;
 use Raketa\BackendTestTask\Repository\ProductRepository;
@@ -16,12 +17,15 @@ readonly class AddToCartController
         private ProductRepository $productRepository,
         private CartView $cartView,
         private CartManager $cartManager,
+        private LoggerInterface $logger
     ) {
     }
 
     public function get(RequestInterface $request): ResponseInterface
     {
         $rawRequest = json_decode($request->getBody()->getContents(), true);
+
+        // Тут может выкинуть ошибку, которую надо залогать, но вроде сказано что валидация уже типо проведена, так что не буду добавлять тут try catch с логированием 
         $product = $this->productRepository->getByUuid($rawRequest['productUuid']);
 
         $cart = $this->cartManager->getCart();
@@ -37,6 +41,7 @@ readonly class AddToCartController
             json_encode(
                 [
                     'status' => 'success',
+                    // Нужно ли это?
                     'cart' => $this->cartView->toArray($cart)
                 ],
                 JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES

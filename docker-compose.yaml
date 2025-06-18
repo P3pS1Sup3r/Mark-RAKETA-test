@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  php:
+    image: php:8.2-Mark-RAKETA-test
+    container_name: Mark-php-RAKETA-test
+    build:
+      context: .
+      dockerfile: Dockerfile.php
+    volumes:
+      - .:/var/www/html
+    working_dir: /var/www/html
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    # Установка amqplib через composer (если composer.json есть в ./app)
+    command: bash -c "docker-php-ext-install pdo_mysql sockets && composer install"

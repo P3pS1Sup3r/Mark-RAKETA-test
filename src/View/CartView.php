@@ -23,6 +23,8 @@ readonly class CartView
                 'name' => implode(' ', [
                     $cart->getCustomer()->getLastName(),
                     $cart->getCustomer()->getFirstName(),
+                    // А вот бывают и без отчеств люди, надо это учитывать при проектировании таблиц
+                    // Но раз сущность вернет string, то ладно
                     $cart->getCustomer()->getMiddleName(),
                 ]),
                 'email' => $cart->getCustomer()->getEmail(),
@@ -32,14 +34,20 @@ readonly class CartView
 
         $total = 0;
         $data['items'] = [];
+
         foreach ($cart->getItems() as $item) {
-            $total += $item->getPrice() * $item->getQuantity();
+            $itemTotalPrice = $item->getPrice() * $item->getQuantity();
+            $total += $itemTotalPrice;
+            // тут конечно каждый раз БД дергать некрасиво. Эти категории у товаров будут постоянно повторяться
+            // в идеале добавить foreach выше и узнать все уникальные категории товаров в корзине
+            // Отдельно у БД запросить все нужные категории и в массив положит эти категории товаров. Потом в этом форыче брать нужную категорию из сформированного массива 
             $product = $this->productRepository->getByUuid($item->getProductUuid());
 
             $data['items'][] = [
                 'uuid' => $item->getUuid(),
                 'price' => $item->getPrice(),
-                'total' => $total,
+                // переназвать бы total лучше в sum или что то подобное
+                'total' => $itemTotalPrice,
                 'quantity' => $item->getQuantity(),
                 'product' => [
                     'id' => $product->getId(),
