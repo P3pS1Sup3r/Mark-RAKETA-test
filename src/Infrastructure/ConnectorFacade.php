@@ -15,9 +15,9 @@ class ConnectorFacade
     private ?string $password = null;
     private ?int $dbindex = null;
 
-    public $connector;
+    protected $connector;
 
-    public function __construct($host, $port, $password, $dbindex, private LoggerInterface $logger)
+    public function __construct($host, $port, $password, $dbindex, protected LoggerInterface $logger)
     {
         $this->host = $host;
         $this->port = $port;

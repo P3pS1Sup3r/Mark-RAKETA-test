@@ -17,7 +17,7 @@ class Connector
     /**
      * @throws ConnectorException
      */
-    public function get(Cart $key)
+    public function get(string $key)
     {
         try {
             return unserialize($this->redis->get($key));
